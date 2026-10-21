@@ -1,4 +1,26 @@
 import { parseChannelPage } from './channel-reader.mjs';
+import { setTimeout as pause } from 'node:timers/promises';
+
+export function createCloudInvoker(runFunction, token, modules, ctx, options = {}) {
+  const sleep=options.sleep || pause;
+  const now=options.now || Date.now;
+  let nextAt=0;
+  return async (name,input={}) => {
+    for(let attempt=0;attempt<6;attempt++) {
+      if(nextAt>now()) await sleep(nextAt-now());
+      nextAt=now()+1200;
+      try {
+        const result=await runFunction(token,`endpoints/${name}`,modules,input,ctx);
+        if(result.error) throw Object.assign(new Error(result.error.description || result.error.message || 'Cloud invocation failed'),result.error);
+        return result.result;
+      } catch(error) {
+        if(Number(error.code || error.status)!==429 || attempt===5) throw error;
+        const seconds=Number(error.parameters?.retry_after) || Math.min(30,2**attempt);
+        nextAt=now()+Math.min(120,Math.max(1,seconds))*1000+250;
+      }
+    }
+  };
+}
 
 const PART_BYTES = 256 * 1024;
 const MAX_BYTES = 48 * 1024 * 1024;

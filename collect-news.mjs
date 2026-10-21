@@ -1,6 +1,6 @@
 import { getFiles, runFunction } from './node_modules/@tgcloud/cli/src/api/endpoints.js';
 import { readChannel, readRss } from './channel-reader.mjs';
-import { transferPendingMedia } from './media-transfer.mjs';
+import { transferPendingMedia, createCloudInvoker } from './media-transfer.mjs';
 
 // Credentials come only from the runner's encrypted secret, never local CLI state.
 const token = process.env.TGCLOUD_TOKEN;
@@ -10,11 +10,7 @@ if (!Number.isSafeInteger(editorId) || editorId <= 0) throw new Error('Set COLLE
 const cloud = await getFiles(token);
 const modules = cloud.canonical_modules;
 const ctx = { initData: { user: { id: editorId } } };
-const invoke = async (name, input = {}) => {
-  const result = await runFunction(token, `endpoints/${name}`, modules, input, ctx);
-  if (result.error) throw new Error(result.error.description || result.error.message || 'Cloud invocation failed');
-  return result.result;
-};
+const invoke = createCloudInvoker(runFunction,token,modules,ctx);
 const config = await invoke('getCollectorConfig');
 if (!Array.isArray(config?.sources)) throw new Error('Collector endpoints are not deployed or returned an invalid result.');
 const sources = config.sources.filter(s => s.enabled);
