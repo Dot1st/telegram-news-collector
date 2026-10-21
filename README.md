@@ -29,6 +29,15 @@ before allowing publication. Temporary chunks are removed after upload; abandone
 chunks expire after 24 hours. Limits are 10 MiB per photo and 48 MiB per other file.
 At most twelve pending candidates are prepared per run, with a four-minute budget.
 RSS collection reads the latest twenty entries per feed.
+Reaction counts are read once, on the first run at least five minutes after the
+original source publication. The bot selects the highest-count permitted emoji,
+or thumbs up if the source has no votes. Unavailable source pages are retried;
+they never count as zero votes. Selection precedes large media uploads. Exact
+five-minute execution is not guaranteed by the scheduler. Channel reaction
+settings are never changed. A single reaction is applied on approval or later
+when the source snapshot is ready; older published history is not backfilled.
+An independent check-reactions workflow checks the same queue without waiting
+for the collector's media uploads. It uses the same existing repository secrets.
 
 Standard GitHub-hosted runners are free for public repositories. Private repositories
 have a finite free allowance; do not enable paid overages if zero cost is required.

@@ -1,6 +1,7 @@
 import { getFiles, runFunction } from './node_modules/@tgcloud/cli/src/api/endpoints.js';
 import { readChannel, readRss } from './channel-reader.mjs';
 import { transferPendingMedia, createCloudInvoker } from './media-transfer.mjs';
+import { syncPendingReactions } from './reaction-reader.mjs';
 
 // Credentials come only from the runner's encrypted secret, never local CLI state.
 const token = process.env.TGCLOUD_TOKEN;
@@ -43,8 +44,11 @@ const health = results.map(r => ({ sourceId: r.source.id, ok: r.complete && !fai
   error: r.error || (failedSources.has(r.source.id) ? 'برخی خبرها ثبت نشدند؛ اجرای بعد دوباره تلاش می‌کند.' : !r.complete ? 'بیش از هشت صفحه عقب‌ماندگی؛ احتمال شکاف در دریافت وجود دارد.' : ''),
 }));
 await invoke('ingestBatch', { items: [], health, finalBatch: true, summary });
+// Reactions must not wait behind large media uploads.
+const reactions = await syncPendingReactions(invoke);
 const media = await transferPendingMedia(invoke);
 console.log(`Sources checked: ${health.length}; failed: ${health.filter(s => !s.ok).length}`);
 console.log(`Queued: ${summary.queued}, skipped: ${summary.skipped}`);
 console.log(`Media ready: ${media.ready}; failed: ${media.failed}; deferred: ${media.deferred}`);
+console.log(`Reactions saved: ${reactions.saved}; applied: ${reactions.applied}; unavailable: ${reactions.unavailable}; errors: ${reactions.errors}`);
 if (health.some(s => !s.ok) || media.failed) process.exitCode = 1;

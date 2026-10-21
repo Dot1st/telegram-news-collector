@@ -1,0 +1,11 @@
+import { getFiles, runFunction } from './node_modules/@tgcloud/cli/src/api/endpoints.js';
+import { createCloudInvoker } from './media-transfer.mjs';
+import { syncPendingReactions } from './reaction-reader.mjs';
+const token=process.env.TGCLOUD_TOKEN;
+const editorId=Number(process.env.COLLECTOR_EDITOR_ID);
+if(!token || !Number.isSafeInteger(editorId) || editorId<=0) throw new Error('Configure the cloud token and authorized editor in Actions Secrets.');
+const {canonical_modules}=await getFiles(token);
+const invoke=createCloudInvoker(runFunction,token,canonical_modules,{initData:{user:{id:editorId}}});
+const result=await syncPendingReactions(invoke);
+console.log(`Reactions saved: ${result.saved}; applied: ${result.applied}; unavailable: ${result.unavailable}; errors: ${result.errors}`);
+if(result.errors) process.exitCode=1;
