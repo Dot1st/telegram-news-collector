@@ -46,6 +46,6 @@ const health = results.map(r => ({ sourceId: r.source.id, ok: r.complete && !fai
   error: r.error || (failedSources.has(r.source.id) ? 'برخی خبرها ثبت نشدند؛ اجرای بعد دوباره تلاش می‌کند.' : !r.complete ? 'بیش از هشت صفحه عقب‌ماندگی؛ احتمال شکاف در دریافت وجود دارد.' : ''),
 }));
 await invoke('ingestBatch', { items: [], health, finalBatch: true, summary });
-for (const status of health) console.log(`${status.sourceId}: ${status.ok ? 'OK' : 'FAILED'}, ${status.received} posts checked`);
+console.log(`Sources checked: ${health.length}; failed: ${health.filter(s => !s.ok).length}`);
 console.log(`Queued: ${summary.queued}, skipped: ${summary.skipped}`);
 if (health.some(s => !s.ok)) process.exitCode = 1;
