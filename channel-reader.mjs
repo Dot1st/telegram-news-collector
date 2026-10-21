@@ -27,7 +27,7 @@ export function parseChannelPage(html, source) {
     if (!text && !mediaItems.length) return;
     const hasHiddenVideo = node.find('.tgme_widget_message_video_player').length > mediaItems.filter(m => m.type === 'video').length;
     items.push({ sourceId: source.id, sourceUrl: `https://t.me/${post}`, text,
-      publishedAt: node.find('time').attr('datetime') || new Date().toISOString(),
+      publishedAt: node.find('time[datetime]').first().attr('datetime') || new Date().toISOString(),
       mediaItems: mediaItems.slice(0, 10),
       mediaWarning: hasHiddenVideo ? 'ویدئوی این پست در پیش‌نمایش عمومی قابل دریافت نیست؛ لینک اصل خبر را پیش از تأیید بررسی کنید.' : null,
       messageNumber: Number(number),

@@ -14,7 +14,7 @@ export function parseSourceReactions(html, sourceUrl) {
   const $=load(html);
   const post=$('.tgme_widget_message[data-post]').filter((_,el)=>$(el).attr('data-post')?.toLowerCase()===`${match[1]}/${match[2]}`.toLowerCase()).first();
   if(!post.length || post.find('.tgme_widget_message_error').length) throw new Error('Source post is unavailable');
-  const publishedAt=post.find('time').first().attr('datetime');
+  const publishedAt=post.find('time[datetime]').first().attr('datetime');
   if(!Number.isFinite(Date.parse(publishedAt))) throw new Error('Source publication time is unavailable');
   const reactions=[];
   post.find('.tgme_widget_message_reactions .tgme_reaction').each((_,el)=>{
