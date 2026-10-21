@@ -1,0 +1,13 @@
+{
+  "name": "telegram-news-collector",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "collect": "node collect-news.mjs"
+  },
+  "dependencies": {
+    "@tgcloud/cli": "0.2.0",
+    "cheerio": "1.1.2"
+  }
+}
