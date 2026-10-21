@@ -23,6 +23,11 @@ The first collection starts with five recent posts per Telegram channel. Later
 collections paginate up to eight preview pages. A gap is reported as an error and
 the cursor does not advance after an incomplete run or a failed item.
 Media unavailable in Telegram's public preview cannot be recovered by this reader.
+Available media is downloaded by the reader, transferred in small authenticated
+chunks, and uploaded to the editor chat. The bot saves a reusable Telegram file ID
+before allowing publication. Temporary chunks are removed after upload; abandoned
+chunks expire after 24 hours. Limits are 10 MiB per photo and 48 MiB per other file.
+At most twelve pending candidates are prepared per run, with a four-minute budget.
 RSS collection reads the latest twenty entries per feed.
 
 Standard GitHub-hosted runners are free for public repositories. Private repositories
